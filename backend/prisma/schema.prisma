@@ -1,0 +1,210 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Enums ───────────────────────────────────────────────────────────────────
+
+enum Role {
+  PATIENT
+  DOCTOR
+}
+
+enum Language {
+  en
+  hi
+  kn
+  ta
+  te
+  bn
+}
+
+enum AppointmentStatus {
+  PENDING
+  TRIAGED
+  WAITING
+  ACTIVE
+  CALL_ENDED
+  COMPLETED
+  CANCELLED
+  EXPIRED
+}
+
+enum Urgency {
+  ROUTINE
+  PRIORITY
+  EMERGENCY
+}
+
+enum FollowUpResponse {
+  BETTER
+  SAME
+  WORSE
+}
+
+// ─── Models ──────────────────────────────────────────────────────────────────
+
+model User {
+  id                 String     @id @default(cuid())
+  name               String
+  email              String     @unique
+  password_hash      String
+  role               Role
+  preferred_language Language   @default(en)
+
+  // Patient-specific fields (nullable for doctors)
+  age                Int?
+  gender             String?
+  blood_group        String?
+
+  created_at         DateTime   @default(now())
+  updated_at         DateTime   @updatedAt
+
+  // Relations
+  doctor_profile     DoctorProfile?
+  patient_appointments Appointment[] @relation("PatientAppointments")
+  doctor_appointments  Appointment[] @relation("DoctorAppointments")
+  patient_ratings    Rating[]    @relation("PatientRatings")
+  doctor_ratings     Rating[]    @relation("DoctorRatings")
+
+  @@map("users")
+}
+
+model DoctorProfile {
+  id                String        @id @default(cuid())
+  user_id           String        @unique
+  specialisation    String
+  bio               String?
+  experience_years  Int
+  consultation_fee  Int           // in INR
+  license_number    String        @unique
+
+  created_at        DateTime      @default(now())
+  updated_at        DateTime      @updatedAt
+
+  // Relations
+  user              User          @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  availability_slots AvailabilitySlot[]
+
+  @@map("doctor_profiles")
+}
+
+model AvailabilitySlot {
+  id           String        @id @default(cuid())
+  doctor_id    String
+  day_of_week  Int           // 0=Sunday, 1=Monday, …, 6=Saturday
+  start_time   String        // "HH:MM" 24-hour
+  end_time     String        // "HH:MM" 24-hour
+
+  created_at   DateTime      @default(now())
+
+  // Relations
+  doctor       DoctorProfile @relation(fields: [doctor_id], references: [id], onDelete: Cascade)
+
+  @@map("availability_slots")
+}
+
+model Appointment {
+  id           String            @id @default(cuid())
+  patient_id   String
+  doctor_id    String
+  scheduled_at DateTime
+  status       AppointmentStatus @default(PENDING)
+
+  created_at   DateTime          @default(now())
+  updated_at   DateTime          @updatedAt
+
+  // Relations
+  patient      User              @relation("PatientAppointments", fields: [patient_id], references: [id])
+  doctor       User              @relation("DoctorAppointments", fields: [doctor_id], references: [id])
+  triage_summary TriageSummary?
+  consultation ConsultationRecord?
+  ratings      Rating[]
+  follow_up_request FollowUpRequest?
+
+  // Prevent double-booking: one appointment per doctor per time slot
+  @@unique([doctor_id, scheduled_at])
+  @@map("appointments")
+}
+
+model TriageSummary {
+  id                    String      @id @default(cuid())
+  appointment_id        String      @unique
+  raw_symptoms          Json?       // original form data as JSONB
+  original_patient_text String?     @db.Text
+  original_input_language Language  @default(en)
+
+  // AI-generated fields
+  ai_summary            String?     @db.Text
+  chief_complaint       String?
+  duration              String?
+  severity              String?
+  urgency               Urgency     @default(ROUTINE)
+
+  created_at            DateTime    @default(now())
+
+  // Relations
+  appointment           Appointment @relation(fields: [appointment_id], references: [id], onDelete: Cascade)
+
+  @@map("triage_summaries")
+}
+
+model ConsultationRecord {
+  id                    String       @id @default(cuid())
+  appointment_id        String       @unique
+  diagnosis             String?      @db.Text
+  doctor_notes          String?      @db.Text
+  prescription_url      String?      // Cloudinary secure URL for prescription PDF
+  follow_up_date        DateTime?
+  referral_specialisation String?
+
+  created_at            DateTime     @default(now())
+  updated_at            DateTime     @updatedAt
+
+  // Relations
+  appointment           Appointment  @relation(fields: [appointment_id], references: [id], onDelete: Cascade)
+
+  @@map("consultations")
+}
+
+model Rating {
+  id                   String      @id @default(cuid())
+  appointment_id       String      @unique  // one rating per appointment
+  patient_id           String
+  doctor_id            String
+  clarity              Int         // 1–5
+  time_given           Int         // 1–5
+  prescription_quality Int         // 1–5
+  overall              Int         // 1–5
+
+  created_at           DateTime    @default(now())
+
+  // Relations
+  appointment          Appointment @relation(fields: [appointment_id], references: [id], onDelete: Cascade)
+  patient              User        @relation("PatientRatings", fields: [patient_id], references: [id])
+  doctor               User        @relation("DoctorRatings", fields: [doctor_id], references: [id])
+
+  @@map("ratings")
+}
+
+model FollowUpRequest {
+  id              String         @id @default(cuid())
+  appointment_id  String         @unique
+  sent_at         DateTime       @default(now())
+  response        FollowUpResponse?
+  responded_at    DateTime?
+  doctor_flagged  Boolean        @default(false)
+  seen_by_doctor  Boolean        @default(false)
+
+  // Relations
+  appointment     Appointment    @relation(fields: [appointment_id], references: [id], onDelete: Cascade)
+
+  @@map("follow_up_requests")
+}
