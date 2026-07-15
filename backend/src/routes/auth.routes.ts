@@ -4,27 +4,20 @@
  */
 import { Router } from 'express';
 import { authMiddleware } from '../middleware/auth.middleware';
+import { authController } from '../controllers/auth.controller';
 
 const router = Router();
 
 // POST /api/auth/register
-router.post('/register', (_req, res) => {
-  res.status(501).json({ success: false, error: 'Not implemented' });
-});
+router.post('/register', authController.register);
 
 // POST /api/auth/login
-router.post('/login', (_req, res) => {
-  res.status(501).json({ success: false, error: 'Not implemented' });
-});
+router.post('/login', authController.login);
 
 // GET /api/auth/me
-router.get('/me', authMiddleware, (_req, res) => {
-  res.status(501).json({ success: false, error: 'Not implemented' });
-});
+router.get('/me', authMiddleware, authController.me);
 
-// PATCH /api/users/language
-router.patch('/language', authMiddleware, (_req, res) => {
-  res.status(501).json({ success: false, error: 'Not implemented' });
-});
+// PATCH /api/users/language (also mapped locally in auth router for consistency)
+router.patch('/language', authMiddleware, authController.updateLanguage);
 
 export default router;

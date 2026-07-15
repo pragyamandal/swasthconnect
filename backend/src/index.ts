@@ -6,7 +6,9 @@ import compression from 'compression';
 import morgan from 'morgan';
 
 // Route imports — to be implemented
-// import authRoutes from './routes/auth.routes';
+import authRoutes from './routes/auth.routes';
+import { authMiddleware } from './middleware/auth.middleware';
+import { authController } from './controllers/auth.controller';
 // import doctorRoutes from './routes/doctor.routes';
 // import appointmentRoutes from './routes/appointment.routes';
 // import triageRoutes from './routes/triage.routes';
@@ -39,7 +41,8 @@ app.get('/api/health', (_req, res) => {
 });
 
 // ─── API routes (uncomment as features are built) ────────────────────────────
-// app.use('/api/auth', authRoutes);
+app.use('/api/auth', authRoutes);
+app.patch('/api/users/language', authMiddleware, authController.updateLanguage);
 // app.use('/api/doctors', doctorRoutes);
 // app.use('/api/appointments', appointmentRoutes);
 // app.use('/api/triage', triageRoutes);
