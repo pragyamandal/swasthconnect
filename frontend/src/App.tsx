@@ -2,11 +2,10 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 // import { AuthProvider } from './context/AuthContext';
 // import ProtectedRoute from './components/ProtectedRoute';
 
-// ── Public pages (to be built) ─────────────────────────────────────────────
-// import LandingPage from './pages/LandingPage';
-// import LoginPage from './pages/auth/LoginPage';
-// import PatientRegisterPage from './pages/auth/PatientRegisterPage';
-// import DoctorRegisterPage from './pages/auth/DoctorRegisterPage';
+import Landing from './pages/Landing';
+import Login from './pages/Login';
+import PatientRegistration from './pages/PatientRegistration';
+import DoctorRegistration from './pages/DoctorRegistration';
 
 // ── Patient pages (to be built) ────────────────────────────────────────────
 // import PatientDashboard from './pages/patient/Dashboard';
@@ -31,10 +30,10 @@ function App() {
     <BrowserRouter>
       <Routes>
         {/* Public */}
-        <Route path="/" element={<div className="p-8 text-center text-2xl font-bold">SwasthConnect — Coming soon 🩺</div>} />
-        <Route path="/login" element={<Navigate to="/" replace />} />
-        <Route path="/register/patient" element={<Navigate to="/" replace />} />
-        <Route path="/register/doctor" element={<Navigate to="/" replace />} />
+        <Route path="/" element={<Landing />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register/patient" element={<PatientRegistration />} />
+        <Route path="/register/doctor" element={<DoctorRegistration />} />
 
         {/* Patient routes — uncomment as pages are built */}
         {/* <Route path="/patient/*" element={<ProtectedRoute role="PATIENT" />}> ... </Route> */}

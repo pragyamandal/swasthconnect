@@ -7,3 +7,19 @@
     @apply font-sans antialiased;
   }
 }
+
+@layer utilities {
+  .glass-panel {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+  .blob-bg {
+    background: radial-gradient(circle at 50% 50%, rgba(26, 109, 181, 0.15) 0%, rgba(26, 109, 181, 0) 70%);
+  }
+  .dotted-line {
+    background-image: linear-gradient(to right, #c1c7d2 50%, transparent 50%);
+    background-size: 16px 1px;
+    background-repeat: repeat-x;
+  }
+}
