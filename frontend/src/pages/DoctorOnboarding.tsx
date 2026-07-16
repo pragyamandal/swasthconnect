@@ -30,9 +30,10 @@ const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'
 
 const DoctorOnboarding: React.FC = () => {
   const [availability, setAvailability] = useState<AvailabilityState>(INITIAL_STATE);
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleToggle = (day: string) => {
+  const toggleDay = (day: string) => {
     setAvailability((prev) => ({
       ...prev,
       [day]: {
@@ -42,7 +43,7 @@ const DoctorOnboarding: React.FC = () => {
     }));
   };
 
-  const handleAddSlot = (day: string) => {
+  const addSlot = (day: string) => {
     setAvailability((prev) => ({
       ...prev,
       [day]: {
@@ -52,7 +53,7 @@ const DoctorOnboarding: React.FC = () => {
     }));
   };
 
-  const handleRemoveSlot = (day: string, index: number) => {
+  const removeSlot = (day: string, index: number) => {
     setAvailability((prev) => ({
       ...prev,
       [day]: {
@@ -62,7 +63,7 @@ const DoctorOnboarding: React.FC = () => {
     }));
   };
 
-  const handleTimeChange = (
+  const updateSlotTime = (
     day: string,
     index: number,
     field: 'startTime' | 'endTime',
@@ -82,6 +83,7 @@ const DoctorOnboarding: React.FC = () => {
   };
 
   const handleSave = async () => {
+    setIsLoading(true);
     try {
       const token = localStorage.getItem('token');
       const response = await axios.put(
@@ -100,6 +102,8 @@ const DoctorOnboarding: React.FC = () => {
     } catch (error) {
       console.error('Failed to save availability', error);
       // Optional: Handle error state in UI here
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -129,7 +133,8 @@ const DoctorOnboarding: React.FC = () => {
         <div className="flex justify-between items-center h-20 px-margin-mobile md:px-margin-desktop max-w-7xl mx-auto">
           {/* Brand */}
           <div className="flex items-center gap-xs">
-            <img src="/logo.jpg" alt="SwasthConnect Logo" className="h-10 w-auto object-contain mix-blend-multiply" />
+            <span className="material-symbols-outlined text-primary dark:text-primary-fixed" style={{ fontVariationSettings: "'FILL' 1", fontSize: "32px" }}>health_and_safety</span>
+            <span className="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed">SwasthConnect</span>
           </div>
           {/* Links (Hidden on Mobile) */}
           <div className="hidden md:flex items-center gap-gutter">
@@ -185,18 +190,19 @@ const DoctorOnboarding: React.FC = () => {
                         <div className="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
                           <input
                             checked={isAvailable}
-                            onChange={() => handleToggle(day)}
+                            onChange={() => toggleDay(day)}
                             className={`toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer z-10 top-0 transition-all duration-300 ${!isAvailable ? 'border-surface-container' : ''}`}
                             id={`toggle_${day}`}
                             name={`toggle_${day}`}
                             type="checkbox"
+                            disabled={!isAvailable && day === 'Sunday' ? true : false}
                           />
                           <label
-                            className="toggle-label block overflow-hidden h-5 rounded-full bg-surface-container cursor-pointer transition-colors duration-300"
+                            className={`toggle-label block overflow-hidden h-5 rounded-full cursor-pointer transition-colors duration-300 ${isAvailable ? 'bg-surface-container' : 'bg-surface-container-high'}`}
                             htmlFor={`toggle_${day}`}
                           ></label>
                         </div>
-                        <span className="font-label-bold text-label-bold text-on-surface">{day}</span>
+                        <span className={`font-label-bold text-label-bold ${!isAvailable && day === 'Sunday' ? 'text-on-surface-variant' : 'text-on-surface'}`}>{day}</span>
                       </div>
 
                       {!isAvailable && (
@@ -213,18 +219,18 @@ const DoctorOnboarding: React.FC = () => {
                                 className="rounded border-outline-variant text-body-sm font-body-sm text-on-surface focus:ring-primary focus:border-primary p-1.5 w-28"
                                 type="time"
                                 value={slot.startTime}
-                                onChange={(e) => handleTimeChange(day, index, 'startTime', e.target.value)}
+                                onChange={(e) => updateSlotTime(day, index, 'startTime', e.target.value)}
                               />
                               <span className="text-on-surface-variant">-</span>
                               <input
                                 className="rounded border-outline-variant text-body-sm font-body-sm text-on-surface focus:ring-primary focus:border-primary p-1.5 w-28"
                                 type="time"
                                 value={slot.endTime}
-                                onChange={(e) => handleTimeChange(day, index, 'endTime', e.target.value)}
+                                onChange={(e) => updateSlotTime(day, index, 'endTime', e.target.value)}
                               />
                               {index === 0 ? (
                                 <button
-                                  onClick={() => handleAddSlot(day)}
+                                  onClick={() => addSlot(day)}
                                   aria-label="Add slot"
                                   className="ml-2 text-primary border border-primary rounded p-1.5 hover:bg-primary-container/10 transition-colors flex items-center justify-center"
                                 >
@@ -238,7 +244,7 @@ const DoctorOnboarding: React.FC = () => {
                           {dayData.slots.length === 0 && (
                             <div className="flex items-center gap-xs justify-end">
                               <button
-                                onClick={() => handleAddSlot(day)}
+                                onClick={() => addSlot(day)}
                                 aria-label="Add slot"
                                 className="text-primary border border-primary rounded p-1.5 hover:bg-primary-container/10 transition-colors flex items-center"
                               >
@@ -256,7 +262,7 @@ const DoctorOnboarding: React.FC = () => {
                         {dayData.slots.map((slot, index) => (
                           <div key={`chip-${index}`} className="inline-flex items-center bg-primary-container/10 text-primary rounded-full px-3 py-1 font-body-sm text-body-sm border border-primary/20">
                             {formatTime(slot.startTime)} – {formatTime(slot.endTime)}
-                            <button onClick={() => handleRemoveSlot(day, index)} className="ml-2 text-primary hover:text-on-error-container flex items-center">
+                            <button onClick={() => removeSlot(day, index)} className="ml-2 text-primary hover:text-on-error-container flex items-center">
                               <span className="material-symbols-outlined text-[16px]">close</span>
                             </button>
                           </div>
@@ -270,8 +276,12 @@ const DoctorOnboarding: React.FC = () => {
 
             {/* CTA */}
             <div className="mt-lg">
-              <button onClick={handleSave} className="w-full bg-[#F4845F] hover:bg-[#d96a45] text-white font-label-bold py-3 rounded-lg transition-colors shadow-sm text-center">
-                Save & Continue
+              <button 
+                onClick={handleSave} 
+                disabled={isLoading}
+                className={`w-full text-white font-label-bold py-3 rounded-lg transition-colors shadow-sm text-center ${isLoading ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#F4845F] hover:bg-[#d96a45]'}`}
+              >
+                {isLoading ? 'Saving...' : 'Save & Continue'}
               </button>
               <p className="text-center mt-xs font-body-sm text-body-sm text-on-surface-variant flex items-center justify-center gap-1">
                 <span className="material-symbols-outlined text-[16px]">lightbulb</span> Patients will only see slots you've marked as available
@@ -287,6 +297,7 @@ const DoctorOnboarding: React.FC = () => {
           <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-secondary/10 rounded-full blur-3xl"></div>
           
           <div className="relative z-10 max-w-sm text-center flex flex-col items-center">
+            <img src="/calendar-graphic.png" alt="Calendar Graphic" className="w-full max-w-[320px] object-contain mb-md drop-shadow-xl" />
             <h3 className="font-headline-md text-headline-md text-on-surface mb-xs">Manage Your Time</h3>
             <p className="font-body-md text-body-md text-on-surface-variant">Your availability controls when patients can book with you. Update your schedule anytime to maintain a healthy work-life balance.</p>
           </div>
