@@ -5,6 +5,7 @@
  */
 import { Router } from 'express';
 import { authMiddleware, requireRole } from '../middleware/auth.middleware';
+import { doctorController } from '../controllers/doctor.controller';
 
 const router = Router();
 
@@ -33,9 +34,10 @@ router.put('/profile', authMiddleware, requireRole('DOCTOR'), (_req, res) => {
   res.status(501).json({ success: false, error: 'Not implemented' });
 });
 
+// GET /api/doctors/availability
+router.get('/doctors/availability', authMiddleware, requireRole('DOCTOR'), doctorController.getAvailability);
+
 // PUT /api/doctors/availability
-router.put('/availability', authMiddleware, requireRole('DOCTOR'), (_req, res) => {
-  res.status(501).json({ success: false, error: 'Not implemented' });
-});
+router.put('/doctors/availability', authMiddleware, requireRole('DOCTOR'), doctorController.saveAvailability);
 
 export default router;
