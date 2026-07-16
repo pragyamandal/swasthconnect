@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import api from '../lib/axios';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 export default function Login() {
@@ -15,10 +15,12 @@ export default function Login() {
         setError('');
         setIsLoading(true);
         try {
-            const response = await axios.post('http://localhost:5000/api/auth/login', formData);
-            const { token, user } = response.data;
-            localStorage.setItem('token', token);
-            localStorage.setItem('user', JSON.stringify(user));
+           const response = await api.post('/api/auth/login', formData);
+            const { token, user } = response.data.data;
+localStorage.setItem('swasth_token', token);
+console.log('Login response:', { token, user }); // ADD THIS
+localStorage.setItem('user', JSON.stringify(user));
+
             if (user.role === 'DOCTOR') navigate('/doctor/dashboard');
             else navigate('/patient/dashboard');
         } catch (err: any) {
