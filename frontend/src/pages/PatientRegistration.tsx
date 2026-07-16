@@ -27,7 +27,7 @@ export default function PatientRegistration() {
                 name: formData.fullName, email: formData.email, password: formData.password, role: 'PATIENT',
                 age: formData.age ? parseInt(formData.age, 10) : null, gender: formData.gender, bloodGroup: formData.bloodGroup, preferredLanguage: formData.language
             };
-            const response = await axios.post('http://localhost:5000/api/auth/register', payload);
+            const response = await axios.post('http://localhost:3001/api/auth/register', payload);
             localStorage.setItem('token', response.data.token);
             localStorage.setItem('user', JSON.stringify(response.data.user));
             navigate('/patient/dashboard');

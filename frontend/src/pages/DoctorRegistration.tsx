@@ -28,7 +28,7 @@ export default function DoctorRegistration() {
                 specialization: formData.specialisation, yearsOfExperience: parseInt(formData.experience, 10),
                 medicalLicenseNumber: formData.license, consultationFee: parseFloat(formData.fee), bio: formData.bio
             };
-            const response = await axios.post('http://localhost:5000/api/auth/register', payload);
+            const response = await axios.post('http://localhost:3001/api/auth/register', payload);
             localStorage.setItem('token', response.data.token);
             localStorage.setItem('user', JSON.stringify(response.data.user));
             navigate('/doctor/dashboard');

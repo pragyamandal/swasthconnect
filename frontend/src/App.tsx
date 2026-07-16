@@ -35,6 +35,9 @@ function App() {
         <Route path="/register/patient" element={<PatientRegistration />} />
         <Route path="/register/doctor" element={<DoctorRegistration />} />
 
+        <Route path="/patient/dashboard" element={<div style={{padding:'2rem'}}>✅ Patient Dashboard — Feature 2 coming soon</div>} />
+<Route path="/doctor/dashboard" element={<div style={{padding:'2rem'}}>✅ Doctor Dashboard — Feature 2 coming soon</div>} />
+
         {/* Patient routes — uncomment as pages are built */}
         {/* <Route path="/patient/*" element={<ProtectedRoute role="PATIENT" />}> ... </Route> */}
 
