@@ -7,7 +7,7 @@ type ProtectedRouteProps = {
 };
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ requiredRole, children }) => {
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem('swasth_token')
 
   if (!token) {
     return <Navigate to="/login" replace />;
