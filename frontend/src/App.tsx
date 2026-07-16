@@ -1,11 +1,12 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 // import { AuthProvider } from './context/AuthContext';
-// import ProtectedRoute from './components/ProtectedRoute';
+import ProtectedRoute from './components/ProtectedRoute';
 
 import Landing from './pages/Landing';
 import Login from './pages/Login';
 import PatientRegistration from './pages/PatientRegistration';
 import DoctorRegistration from './pages/DoctorRegistration';
+import DoctorOnboarding from './pages/DoctorOnboarding';
 
 // ── Patient pages (to be built) ────────────────────────────────────────────
 // import PatientDashboard from './pages/patient/Dashboard';
@@ -40,6 +41,7 @@ function App() {
 
         {/* Doctor routes — uncomment as pages are built */}
         {/* <Route path="/doctor/*" element={<ProtectedRoute role="DOCTOR" />}> ... </Route> */}
+        <Route path="/doctor/onboarding" element={<ProtectedRoute requiredRole="DOCTOR"><DoctorOnboarding /></ProtectedRoute>} />
 
         {/* Catch-all */}
         <Route path="*" element={<Navigate to="/" replace />} />

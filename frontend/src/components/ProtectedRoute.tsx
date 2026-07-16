@@ -1,33 +1,40 @@
-/**
- * ProtectedRoute.tsx
- * Wraps React Router v6 Outlet to enforce auth and role.
- * TRD reference: section 4.1 (Frontend route protection)
- */
+import React from 'react';
+import { Navigate } from 'react-router-dom';
 
-import { Navigate, Outlet } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import { Role } from '@swasthconnect/shared';
+type ProtectedRouteProps = {
+  requiredRole: 'PATIENT' | 'DOCTOR';
+  children: React.ReactNode;
+};
 
-interface ProtectedRouteProps {
-  role: Role;
-}
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ requiredRole, children }) => {
+  const token = localStorage.getItem('token');
 
-export default function ProtectedRoute({ role }: ProtectedRouteProps) {
-  const { isAuthenticated, user } = useAuth();
-
-  if (!isAuthenticated) {
+  if (!token) {
     return <Navigate to="/login" replace />;
   }
 
-  if (user?.role !== role) {
-    // Wrong role — redirect to their own dashboard
-    return (
-      <Navigate
-        to={user?.role === 'PATIENT' ? '/patient/dashboard' : '/doctor/dashboard'}
-        replace
-      />
-    );
+  try {
+    const payloadBase64 = token.split('.')[1];
+    const decodedJson = atob(payloadBase64);
+    const decoded = JSON.parse(decodedJson);
+    const userRole = decoded.role;
+
+    if (userRole !== requiredRole) {
+      if (userRole === 'PATIENT') {
+        return <Navigate to="/patient/dashboard" replace />;
+      } else if (userRole === 'DOCTOR') {
+        return <Navigate to="/doctor/dashboard" replace />;
+      } else {
+        return <Navigate to="/login" replace />;
+      }
+    }
+  } catch (error) {
+    console.error('Failed to parse token', error);
+    localStorage.removeItem('token');
+    return <Navigate to="/login" replace />;
   }
 
-  return <Outlet />;
-}
+  return <>{children}</>;
+};
+
+export default ProtectedRoute;
