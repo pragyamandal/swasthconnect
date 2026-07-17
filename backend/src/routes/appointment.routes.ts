@@ -5,18 +5,15 @@
  */
 import { Router } from 'express';
 import { authMiddleware, requireRole } from '../middleware/auth.middleware';
+import { appointmentController } from '../controllers/appointment.controller';
 
 const router = Router();
 
 // POST /api/appointments (patient books)
-router.post('/', authMiddleware, requireRole('PATIENT'), (_req, res) => {
-  res.status(501).json({ success: false, error: 'Not implemented' });
-});
+router.post('/', authMiddleware, requireRole('PATIENT'), appointmentController.bookAppointment);
 
 // GET /api/appointments/my (patient's appointments)
-router.get('/my', authMiddleware, requireRole('PATIENT'), (_req, res) => {
-  res.status(501).json({ success: false, error: 'Not implemented' });
-});
+router.get('/my', authMiddleware, requireRole('PATIENT'), appointmentController.getMyAppointments);
 
 // GET /api/appointments/queue (doctor's queue sorted by urgency)
 router.get('/queue', authMiddleware, requireRole('DOCTOR'), (_req, res) => {

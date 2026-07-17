@@ -10,24 +10,10 @@ import { doctorController } from '../controllers/doctor.controller';
 const router = Router();
 
 // GET /api/doctors?specialisation=Cardiologist
-router.get('/', authMiddleware, (_req, res) => {
-  res.status(501).json({ success: false, error: 'Not implemented' });
-});
+router.get('/', authMiddleware, doctorController.listDoctors);
 
 // POST /api/doctors/match (Gemini symptom → specialisation)
-router.post('/match', authMiddleware, requireRole('PATIENT'), (_req, res) => {
-  res.status(501).json({ success: false, error: 'Not implemented' });
-});
-
-// GET /api/doctors/:id
-router.get('/:id', authMiddleware, (_req, res) => {
-  res.status(501).json({ success: false, error: 'Not implemented' });
-});
-
-// GET /api/doctors/:id/rating
-router.get('/:id/rating', authMiddleware, (_req, res) => {
-  res.status(501).json({ success: false, error: 'Not implemented' });
-});
+router.post('/match', authMiddleware, requireRole('PATIENT'), doctorController.matchSpecialisation);
 
 // PUT /api/doctors/profile
 router.put('/profile', authMiddleware, requireRole('DOCTOR'), (_req, res) => {
@@ -35,9 +21,17 @@ router.put('/profile', authMiddleware, requireRole('DOCTOR'), (_req, res) => {
 });
 
 // GET /api/doctors/availability
-router.get('/doctors/availability', authMiddleware, requireRole('DOCTOR'), doctorController.getAvailability);
+router.get('/availability', authMiddleware, requireRole('DOCTOR'), doctorController.getAvailability);
 
 // PUT /api/doctors/availability
-router.put('/doctors/availability', authMiddleware, requireRole('DOCTOR'), doctorController.saveAvailability);
+router.put('/availability', authMiddleware, requireRole('DOCTOR'), doctorController.saveAvailability);
+
+// GET /api/doctors/:id
+router.get('/:id', authMiddleware, doctorController.getDoctorById);
+
+// GET /api/doctors/:id/rating
+router.get('/:id/rating', authMiddleware, (_req, res) => {
+  res.status(501).json({ success: false, error: 'Not implemented' });
+});
 
 export default router;

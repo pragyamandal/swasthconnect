@@ -11,7 +11,7 @@ import { authMiddleware } from './middleware/auth.middleware';
 import { authController } from './controllers/auth.controller';
 import doctorRouter from './routes/doctor.routes';
 // import doctorRoutes from './routes/doctor.routes';
-// import appointmentRoutes from './routes/appointment.routes';
+import appointmentRoutes from './routes/appointment.routes';
 // import triageRoutes from './routes/triage.routes';
 // import consultationRoutes from './routes/consultation.routes';
 // import ratingRoutes from './routes/rating.routes';
@@ -44,9 +44,9 @@ app.get('/api/health', (_req, res) => {
 // ─── API routes (uncomment as features are built) ────────────────────────────
 app.use('/api/auth', authRoutes);
 app.patch('/api/users/language', authMiddleware, authController.updateLanguage);
-app.use('/api', doctorRouter);
+app.use('/api/doctors', doctorRouter);
 // app.use('/api/doctors', doctorRoutes);
-// app.use('/api/appointments', appointmentRoutes);
+app.use('/api/appointments', appointmentRoutes);
 // app.use('/api/triage', triageRoutes);
 // app.use('/api/consultations', consultationRoutes);
 // app.use('/api/ratings', ratingRoutes);
