@@ -7,6 +7,10 @@ import Login from './pages/Login';
 import PatientRegistration from './pages/PatientRegistration';
 import DoctorRegistration from './pages/DoctorRegistration';
 import DoctorOnboarding from './pages/DoctorOnboarding';
+import PatientDashboard from './pages/PatientDashboard';
+import FindDoctor from './pages/FindDoctor';
+import DoctorProfile from './pages/DoctorProfile';
+import Triage from './pages/Triage';
 
 // ── Patient pages (to be built) ────────────────────────────────────────────
 // import PatientDashboard from './pages/patient/Dashboard';
@@ -36,7 +40,10 @@ function App() {
         <Route path="/register/patient" element={<PatientRegistration />} />
         <Route path="/register/doctor" element={<DoctorRegistration />} />
 
-        <Route path="/patient/dashboard" element={<div style={{padding:'2rem'}}>✅ Patient Dashboard — Feature 2 coming soon</div>} />
+        <Route path="/patient/dashboard" element={<PatientDashboard />} />
+        <Route path="/patient/find-doctor" element={<FindDoctor />} />
+        <Route path="/patient/doctors/:id" element={<DoctorProfile />} />
+        <Route path="/patient/triage/:appointmentId" element={<Triage />} />
 <Route path="/doctor/dashboard" element={<div style={{padding:'2rem'}}>✅ Doctor Dashboard — Feature 2 coming soon</div>} />
 
         {/* Patient routes — uncomment as pages are built */}
